@@ -16,32 +16,32 @@ greymap* greymap_read(char *filename) {
     char buffer[READER_BUFFER_SIZE] = {0};
 
     if (!(fr = fopen(filename, "r"))) {
-        // could not open
+        /* could not open */
         status_code = GREYMAP_STATUS_ERROR_IO;
         return NULL;
     }
 
     if (!fgets(buffer, READER_BUFFER_SIZE, fr)) {
-        // could not read line
+        /* could not read line */
         status_code = GREYMAP_STATUS_ERROR_IO;
         goto read_end_close;
     }
 
     if (buffer[0] != PGM_MAGIC_NUMBER[0] || buffer[1] != PGM_MAGIC_NUMBER[1] || buffer[3]) {
-        // not the desired magic number => probably not a PGM file
+        /* not the desired magic number => probably not a PGM file */
         status_code = GREYMAP_STATUS_ERROR_FORMAT;
         goto read_end_close;
     }
 
     do {
         if (!fgets(buffer, READER_BUFFER_SIZE, fr)) {
-            // could not read line
+            /* could not read line */
             status_code = GREYMAP_STATUS_ERROR_IO;
             goto read_end_close;
         }
-    } while (buffer[0] == '#'); // ignore comment lines
+    } while (buffer[0] == '#'); /* ignore comment lines */
 
-    // get width
+    /* get width */
     while (buffer[i] != ' ') {
         if (!isdigit(buffer[i])) {
             status_code = GREYMAP_STATUS_ERROR_FORMAT;
@@ -56,7 +56,7 @@ greymap* greymap_read(char *filename) {
 
     i++;
 
-    // get height
+    /* get height */
     while (buffer[i] != '\n') {
         if (!isdigit(buffer[i])) {
             status_code = GREYMAP_STATUS_ERROR_FORMAT;
@@ -75,11 +75,11 @@ greymap* greymap_read(char *filename) {
     }
 
     if (!fgets(buffer, READER_BUFFER_SIZE, fr)) {
-        // could not read line
+        /* could not read line */
         status_code = GREYMAP_STATUS_ERROR_IO;
         goto read_end_close;
     }
-    // ignoring brightness, no use for it
+    /* ignoring brightness, no use for it */
 
     result = greymap_create(width, height);
     if (greymap_status()) return NULL;
@@ -92,12 +92,25 @@ greymap* greymap_read(char *filename) {
     status_code = GREYMAP_STATUS_SUCCESS;
 
     read_end_close:
-    fclose(fr); // error while closing does not really bother me while reading
+    fclose(fr); /* error while closing does not really bother me while reading */
     return result;
 
     read_end_free:
     greymap_free(&result);
     goto read_end_close;
+}
+
+
+
+unsigned char greymap_get_pixel(greymap *gm, unsigned int i, unsigned int j) {
+    if (i >= 0 && i < gm->width && j >= 0 && j < gm->height)
+        return gm->map[j * gm->width + i];
+
+    return 0;
+}
+
+void greymap_set_pixel(greymap *gm, unsigned int i, unsigned int j, unsigned char value) {
+    gm->map[j * gm->width + i] = value;
 }
 
 

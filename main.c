@@ -5,6 +5,7 @@
 
 #define EXIT_MISSING_ARGS (1)
 #define EXIT_READ_ERROR (2)
+#define EXIT_CREATION_ERROR (3)
 
 void print_usage(char *exec_name) {
     printf("Usage: %s <input_file> <output_file>\n", exec_name);
@@ -42,7 +43,17 @@ int main(int argc, char *argv[]) {
         return EXIT_READ_ERROR;
     }
 
-    output_gm =
+    output_gm = greymap_create(input_gm->width, input_gm->height);
+    if ((s = greymap_status()) != GREYMAP_STATUS_SUCCESS) {
+        greymap_stat_print(s);
+        return EXIT_CREATION_ERROR;
+    }
+
+    s = process_greymap(input_gm, output_gm);
+
+    greymap_write(output_filename, output_gm);
 
     greymap_free(&input_gm);
+    greymap_free(&output_gm);
+    return s;
 }

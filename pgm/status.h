@@ -31,4 +31,4 @@
  */
 #define GREYMAP_STATUS_ERROR_MEMORY (5)
 
-#endif //PC_SP_PGM_STATUS_H
+#endif /* PC_SP_PGM_STATUS_H */

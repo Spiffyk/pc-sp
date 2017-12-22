@@ -4,27 +4,6 @@
 #include "pgm/status.h"
 #include "pgm/stat_printer.h"
 
-/**
- * Gets a pixel from the specified <code>greymap</code>.
- *
- * @param greymap the pointer to the greymap to retrieve the pixel from
- * @param i the horizontal coordinate of the pixel
- * @param j the vertical coordinate of the pixel
- * @return the value of the pixel
- */
-#define greymap_get_pixel(greymap,i,j) ((greymap)->map[(i) * (greymap)->width + (j)])
-
-/**
- * Sets a pixel of the specified <code>greymap</code>.
- *
- * @param greymap the pointer to the greymap to retrieve the pixel from
- * @param i the horizontal coordinate of the pixel
- * @param j the vertical coordinate of the pixel
- * @param value the value to set to the pixel
- * @return the new value of the pixel
- */
-#define greymap_set_pixel(greymap,i,j,value) ((greymap)->map[(i) * (greymap)->width + (j)] = (value))
-
 typedef struct {
     unsigned int width;
     unsigned int height;
@@ -38,6 +17,26 @@ typedef struct {
  * @return a <code>greymap</code> pointer
  */
 greymap* greymap_read(char *filename);
+
+/**
+ * Gets a pixel from the specified <code>greymap</code>. A bounds check <b>is</b> performed.
+ *
+ * @param gm the pointer to the greymap to retrieve the pixel from
+ * @param i the horizontal coordinate of the pixel
+ * @param j the vertical coordinate of the pixel
+ * @return the value of the pixel or 0 if out of bounds
+ */
+unsigned char greymap_get_pixel(greymap *gm, unsigned int i, unsigned int j);
+
+/**
+ * Sets a pixel of the specified <code>greymap</code>. A bounds check is <b>not</b> performed.
+ *
+ * @param gm the pointer to the greymap to retrieve the pixel from
+ * @param i the horizontal coordinate of the pixel
+ * @param j the vertical coordinate of the pixel
+ * @param value the value to set to the pixel
+ */
+void greymap_set_pixel(greymap *gm, unsigned int i, unsigned int j, unsigned char value);
 
 /**
  * Writes the specified <code>greymap</code> to the specified file in the Portable Grey Map format.
@@ -56,7 +55,7 @@ void greymap_write(char *filename, greymap *gm);
 void greymap_free(greymap **p_greymap);
 
 /**
- * Allocates a new greymap in the memory.
+ * Allocates a new greymap in the memory. The content of the map is undefined.
  *
  * @param width the width in pixels
  * @param height the height in pixels
@@ -72,4 +71,4 @@ greymap* greymap_create(unsigned int width, unsigned int height);
  */
 int greymap_status();
 
-#endif //PC_SP_PGM_H
+#endif /* PC_SP_PGM_H */

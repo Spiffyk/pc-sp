@@ -18,4 +18,4 @@
  */
 void greymap_stat_fprint(int status, FILE *target);
 
-#endif //PC_SP_PGM_STAT_PRINTER_H
+#endif /* PC_SP_PGM_STAT_PRINTER_H */
