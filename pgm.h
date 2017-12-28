@@ -7,16 +7,9 @@
 typedef struct {
     unsigned int width;
     unsigned int height;
-    unsigned char *map;
+    unsigned int *map;
 } greymap;
 
-/**
- * Reads a <code>greymap</code> from the specified file in the Portable Grey Map format.
- *
- * @param filename the name of the file to read from
- * @return a <code>greymap</code> pointer
- */
-greymap* greymap_read(char *filename);
 
 /**
  * Gets a pixel from the specified <code>greymap</code>. A bounds check <b>is</b> performed.
@@ -26,7 +19,7 @@ greymap* greymap_read(char *filename);
  * @param j the vertical coordinate of the pixel
  * @return the value of the pixel or 0 if out of bounds
  */
-unsigned char greymap_get_pixel(greymap *gm, unsigned int i, unsigned int j);
+unsigned int greymap_get_pixel(greymap *gm, unsigned int i, unsigned int j);
 
 /**
  * Sets a pixel of the specified <code>greymap</code>. A bounds check is <b>not</b> performed.
@@ -36,7 +29,15 @@ unsigned char greymap_get_pixel(greymap *gm, unsigned int i, unsigned int j);
  * @param j the vertical coordinate of the pixel
  * @param value the value to set to the pixel
  */
-void greymap_set_pixel(greymap *gm, unsigned int i, unsigned int j, unsigned char value);
+void greymap_set_pixel(greymap *gm, unsigned int i, unsigned int j, unsigned int value);
+
+/**
+ * Reads a <code>greymap</code> from the specified file in the Portable Grey Map format.
+ *
+ * @param filename the name of the file to read from
+ * @return a <code>greymap</code> pointer
+ */
+greymap* greymap_read(char *filename);
 
 /**
  * Writes the specified <code>greymap</code> to the specified file in the Portable Grey Map format.

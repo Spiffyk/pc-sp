@@ -9,8 +9,26 @@
 
 int status_code = GREYMAP_STATUS_NONE;
 
+
+
+unsigned int greymap_get_pixel(greymap *gm, unsigned int i, unsigned int j) {
+    if (i >= 0 && i < gm->width && j >= 0 && j < gm->height)
+        return gm->map[j * gm->width + i];
+
+    return 0;
+}
+
+
+
+void greymap_set_pixel(greymap *gm, unsigned int i, unsigned int j, unsigned int value) {
+    gm->map[j * gm->width + i] = value;
+}
+
+
+
 greymap* greymap_read(char *filename) {
-    unsigned int width = 0, height = 0, i = 0;
+    int c;
+    unsigned int width = 0, height = 0, i = 0, maxi;
     greymap *result = NULL;
     FILE *fr;
     char buffer[READER_BUFFER_SIZE] = {0};
@@ -84,9 +102,13 @@ greymap* greymap_read(char *filename) {
     result = greymap_create(width, height);
     if (greymap_status()) return NULL;
 
-    if (!fread(result->map, width, height, fr)) {
-        status_code = feof(fr) ? GREYMAP_STATUS_ERROR_EARLY_EOF : GREYMAP_STATUS_ERROR_IO;
-        goto read_end_free;
+    for (i = 0, maxi = width * height; i < maxi; i++) {
+        if ((c = getc(fr)) == EOF) {
+            status_code = feof(fr) ? GREYMAP_STATUS_ERROR_EARLY_EOF : GREYMAP_STATUS_ERROR_IO;
+            goto read_end_free;
+        }
+
+        result->map[i] = (unsigned int) c;
     }
 
     status_code = GREYMAP_STATUS_SUCCESS;
@@ -102,20 +124,8 @@ greymap* greymap_read(char *filename) {
 
 
 
-unsigned char greymap_get_pixel(greymap *gm, unsigned int i, unsigned int j) {
-    if (i >= 0 && i < gm->width && j >= 0 && j < gm->height)
-        return gm->map[j * gm->width + i];
-
-    return 0;
-}
-
-void greymap_set_pixel(greymap *gm, unsigned int i, unsigned int j, unsigned char value) {
-    gm->map[j * gm->width + i] = value;
-}
-
-
-
 void greymap_write(char *filename, greymap *gm) {
+    unsigned int i, maxi;
     FILE *fw;
 
     if (!(fw = fopen(filename, "w"))) {
@@ -126,9 +136,11 @@ void greymap_write(char *filename, greymap *gm) {
     fputs(PGM_MAGIC_NUMBER, fw);
     fprintf(fw, "\n%d %d\n255\n", gm->width, gm->height);
 
-    if (fwrite(gm->map, 1, gm->width * gm->height, fw) != (gm->width * gm->height)) {
-        status_code = GREYMAP_STATUS_ERROR_IO;
-        goto write_end_close;
+    for (i = 0, maxi = (gm->width * gm->height); i < maxi; i++) {
+        if (putc(gm->map[i], fw) == EOF) {
+            status_code = GREYMAP_STATUS_ERROR_IO;
+            goto write_end_close;
+        }
     }
 
     status_code = GREYMAP_STATUS_SUCCESS;
@@ -151,7 +163,7 @@ void greymap_free(greymap **p_greymap) {
 
 
 greymap* greymap_create(unsigned int width, unsigned int height) {
-    unsigned char *map;
+    unsigned int *map;
     greymap *result;
 
     if ((result = malloc(sizeof(greymap))) == NULL) {
@@ -159,7 +171,7 @@ greymap* greymap_create(unsigned int width, unsigned int height) {
         return NULL;
     }
 
-    if ((map = malloc(width * height)) == NULL) {
+    if ((map = malloc(width * height * sizeof(int))) == NULL) {
         free(result);
         status_code = GREYMAP_STATUS_ERROR_MEMORY;
         return NULL;
