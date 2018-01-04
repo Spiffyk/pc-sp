@@ -4,11 +4,11 @@
 #include <stdio.h>
 
 /**
- * Prints a greymap status code in a human-readable form into <code>stderr</code>.
+ * Prints a greymap status code in a human-readable form into <code>stdout</code>.
  *
  * @param status the status code
  */
-#define greymap_stat_print(status) greymap_stat_fprint(status, stderr)
+#define greymap_stat_print(status) greymap_stat_fprint(status, stdout)
 
 /**
  * Prints a greymap status code in a human-readable form into the provided target.

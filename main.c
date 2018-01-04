@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "pgm.h"
 #include "gmproc.h"
@@ -6,6 +7,8 @@
 #define EXIT_MISSING_ARGS (1)
 #define EXIT_READ_ERROR (2)
 #define EXIT_CREATION_ERROR (3)
+#define EXIT_PROCESS_ERROR (4)
+#define EXIT_WRITE_ERROR (5)
 
 void print_usage(char *exec_name) {
     printf("Usage: %s <input_file> <output_file>\n", exec_name);
@@ -37,23 +40,45 @@ int main(int argc, char *argv[]) {
     input_filename = argv[1];
     output_filename = argv[2];
 
+    printf("-- Reading input greymap from '%s'... ", input_filename);
     input_gm = greymap_read(input_filename);
     if ((s = greymap_status()) != GREYMAP_STATUS_SUCCESS) {
+        printf("[ ERROR! ]\n");
         greymap_stat_print(s);
         return EXIT_READ_ERROR;
     }
+    printf("[ done. ]\n");
 
+    printf("-- Allocating output greymap... ");
     output_gm = greymap_create(input_gm->width, input_gm->height);
     if ((s = greymap_status()) != GREYMAP_STATUS_SUCCESS) {
+        printf("[ ERROR! ]\n");
         greymap_stat_print(s);
         return EXIT_CREATION_ERROR;
     }
+    printf("[ done. ]\n");
 
-    s = process_greymap(input_gm, output_gm);
+    printf("-- Processing greymap... ");
+    if ((s = process_greymap(input_gm, output_gm)) != PROCESS_STATUS_SUCCESS) {
+        printf("[ ERROR! ] (code: %d)\n", s);
+        return EXIT_PROCESS_ERROR;
+    }
+    printf("[ done. ]\n");
 
+    printf("-- Writing output greymap... ");
     greymap_write(output_filename, output_gm);
+    if ((s = greymap_status()) != GREYMAP_STATUS_SUCCESS) {
+        printf("[ ERROR! ]\n");
+        greymap_stat_print(s);
+        return EXIT_WRITE_ERROR;
+    }
+    printf("[ done. ]\n");
 
+    printf("-- Freeing resources before exit... ");
     greymap_free(&input_gm);
     greymap_free(&output_gm);
-    return s;
+    printf("[ done. ]\n");
+
+    printf("All done, program end.\n");
+    return EXIT_SUCCESS;
 }
