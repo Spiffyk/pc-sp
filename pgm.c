@@ -4,9 +4,19 @@
 
 #include "pgm.h"
 
+/**
+ * Buffer size.
+ */
 #define READER_BUFFER_SIZE 64
+
+/**
+ * The first two bytes every PGM file should begin with.
+ */
 #define PGM_MAGIC_NUMBER "P5"
 
+/**
+ * Global variable for keeping track of greymap parser status.
+ */
 int status_code = GREYMAP_STATUS_NONE;
 
 
@@ -57,9 +67,9 @@ greymap* greymap_read(char *filename) {
             status_code = GREYMAP_STATUS_ERROR_IO;
             goto read_end_close;
         }
-    } while (buffer[0] == '#'); /* ignore comment lines */
+    } while (buffer[0] == '#'); /* ignore comment lines (mostly for testing: some programs like GIMP generate them) */
 
-    /* get width */
+    /* parse width */
     while (buffer[i] != ' ') {
         if (!isdigit(buffer[i])) {
             status_code = GREYMAP_STATUS_ERROR_FORMAT;
@@ -74,7 +84,7 @@ greymap* greymap_read(char *filename) {
 
     i++;
 
-    /* get height */
+    /* parse height */
     while (buffer[i] != '\n') {
         if (!isdigit(buffer[i])) {
             status_code = GREYMAP_STATUS_ERROR_FORMAT;
@@ -92,12 +102,12 @@ greymap* greymap_read(char *filename) {
         goto read_end_close;
     }
 
+    /* ignoring brightness, as we have no use for it */
     if (!fgets(buffer, READER_BUFFER_SIZE, fr)) {
         /* could not read line */
         status_code = GREYMAP_STATUS_ERROR_IO;
         goto read_end_close;
     }
-    /* ignoring brightness, no use for it */
 
     result = greymap_create(width, height);
     if (greymap_status()) return NULL;
@@ -114,7 +124,7 @@ greymap* greymap_read(char *filename) {
     status_code = GREYMAP_STATUS_SUCCESS;
 
     read_end_close:
-    fclose(fr); /* error while closing does not really bother me while reading */
+    fclose(fr); /* error while closing does not really bother us while reading, so not checking for it */
     return result;
 
     read_end_free:

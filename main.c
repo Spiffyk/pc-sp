@@ -10,10 +10,21 @@
 #define EXIT_PROCESS_ERROR (4)
 #define EXIT_WRITE_ERROR (5)
 
+/**
+ * Prints help.
+ *
+ * @param exec_name the executable name
+ */
 void print_usage(char *exec_name) {
     printf("Usage: %s <input_file> <output_file>\n", exec_name);
 }
 
+/**
+ * Gets the filename (the last element) from the specified path.
+ *
+ * @param path the path to parse
+ * @return the filename
+ */
 char* get_filename(char *path) {
     char *result = path;
 
@@ -40,6 +51,9 @@ int main(int argc, char *argv[]) {
     input_filename = argv[1];
     output_filename = argv[2];
 
+    /*
+     * Read input from file
+     */
     printf("-- Reading input greymap from '%s'... ", input_filename);
     input_gm = greymap_read(input_filename);
     if ((s = greymap_status()) != GREYMAP_STATUS_SUCCESS) {
@@ -49,6 +63,9 @@ int main(int argc, char *argv[]) {
     }
     printf("[ done. ]\n");
 
+    /*
+     * Allocate output
+     */
     printf("-- Allocating output greymap... ");
     output_gm = greymap_create(input_gm->width, input_gm->height);
     if ((s = greymap_status()) != GREYMAP_STATUS_SUCCESS) {
@@ -58,6 +75,9 @@ int main(int argc, char *argv[]) {
     }
     printf("[ done. ]\n");
 
+    /*
+     * Process input, fill output
+     */
     printf("-- Processing greymap... ");
     if ((s = process_greymap(input_gm, output_gm)) != PROCESS_STATUS_SUCCESS) {
         printf("[ ERROR! ] (code: %d)\n", s);
@@ -65,6 +85,9 @@ int main(int argc, char *argv[]) {
     }
     printf("[ done. ]\n");
 
+    /*
+     * Write output into file
+     */
     printf("-- Writing output greymap... ");
     greymap_write(output_filename, output_gm);
     if ((s = greymap_status()) != GREYMAP_STATUS_SUCCESS) {
@@ -74,6 +97,9 @@ int main(int argc, char *argv[]) {
     }
     printf("[ done. ]\n");
 
+    /*
+     * Free
+     */
     printf("-- Freeing resources before exit... ");
     greymap_free(&input_gm);
     greymap_free(&output_gm);

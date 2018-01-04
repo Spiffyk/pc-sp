@@ -10,8 +10,7 @@
 #define MID_COLOR (128)
 
 /**
- * Makes all colors distinguishable. The greymap should not contain <code>0x00</code> or <code>0xFF</code>, behavior
- * for such a greymap is undefined.
+ * Spreads all colors in the greymap out evenly so that they are distinguishable by human eye.
  *
  * @param gm the greymap to recolor
  * @param n number of colors
@@ -48,7 +47,7 @@ int fit_colors_to_char(greymap *gm, unsigned int *last_color) {
     simple_table *table;
 
     table = simple_table_default();
-    simple_table_put(table, BACKGROUND_COLOR, BACKGROUND_COLOR); /* Black should ALWAYS be black */
+    simple_table_put(table, BACKGROUND_COLOR, BACKGROUND_COLOR); /* Background color should never change */
 
     for (j = 0; j < gm->height; j++) {
         for (i = 0; i < gm->width; i++) {
@@ -93,32 +92,38 @@ void get_neighbors(unsigned int nb[], greymap *gm, unsigned int i, unsigned int 
     nb[7] = greymap_get_pixel(gm, i - 1, j);
 }
 
+
+
 int process_greymap(greymap *input, greymap *output) {
     unsigned int i, j, k,
             nb_nonbkg,
-            pixel,
+            color,
+            *color_ptr,
             neighbors[NEIGHBOR_COUNT],
             last_color = FIRST_RECOLOR,
-            nb_color,
-            *pix_ptr;
+            nb_color;
     simple_table *equiv_table;
 
+    /* This problem should never arise, actually. */
     if (input->width != output->width || input->height != output->height)
         return PROCESS_STATUS_NONEQUAL_DIMENSIONS;
 
+    /* Initialize output greymap to full BACKGROUND_COLOR */
     for (i = 0; i < output->width * output->height; i++) {
         output->map[i] = BACKGROUND_COLOR;
     }
 
     equiv_table = simple_table_default();
 
-    /* pass 1 */
+    /*
+     * Pass 1: Coloring
+     */
     for (j = 0; j < output->height; j++) {
         for (i = 0; i < output->width; i++) {
-            pixel = greymap_get_pixel(input, i, j);
+            color = greymap_get_pixel(input, i, j);
 
-            if (pixel != BACKGROUND_COLOR) {
-                if (pixel != FOREGROUND_COLOR)
+            if (color != BACKGROUND_COLOR) {
+                if (color != FOREGROUND_COLOR)
                     return PROCESS_STATUS_INVALID_COLORS;
 
                 get_neighbors(neighbors, output, i, j);
@@ -128,14 +133,15 @@ int process_greymap(greymap *input, greymap *output) {
                     if (neighbors[k] != BACKGROUND_COLOR) {
                         nb_nonbkg++;
 
+                        /* this should happen at most once, when a non-background-colored neighbor is found */
                         if (nb_color == BACKGROUND_COLOR) {
                             nb_color = neighbors[k];
                         }
 
-
+                        /* equivalence table data */
                         if (nb_color != neighbors[k]) {
-                            while ((pix_ptr = simple_table_get(equiv_table, nb_color))) {
-                                nb_color = *pix_ptr;
+                            while ((color_ptr = simple_table_get(equiv_table, nb_color))) {
+                                nb_color = *color_ptr;
                             }
 
                             if (nb_color != neighbors[k] && !simple_table_get(equiv_table, neighbors[k])) {
@@ -155,16 +161,18 @@ int process_greymap(greymap *input, greymap *output) {
         }
     }
 
-    /* pass 2 */
+    /*
+     * Pass 2: Equivalence table application
+     */
     for (j = 0; j < output->height; j++) {
         for (i = 0; i < output->width; i++) {
-            pixel = greymap_get_pixel(output, i, j);
+            color = greymap_get_pixel(output, i, j);
 
-            while ((pix_ptr = simple_table_get(equiv_table, pixel))) {
-                pixel = *pix_ptr;
+            while ((color_ptr = simple_table_get(equiv_table, color))) {
+                color = *color_ptr;
             }
 
-            greymap_set_pixel(output, i, j, pixel);
+            greymap_set_pixel(output, i, j, color);
         }
     }
 
@@ -173,7 +181,6 @@ int process_greymap(greymap *input, greymap *output) {
     if (!fit_colors_to_char(output, &last_color)) {
         return PROCESS_STATUS_TOO_MANY_COMPONENTS;
     }
-
     make_colors_distinguishable(output, (unsigned char) (last_color - 1));
     return PROCESS_STATUS_SUCCESS;
 }

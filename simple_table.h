@@ -27,7 +27,7 @@ simple_table *simple_table_create(unsigned int table_size);
 void simple_table_free(simple_table **table);
 
 /**
- * Allocates a new simple table with the size of 255.
+ * Allocates a new simple table with the size of 255, which is probably sufficient for most use-cases.
  *
  * @return a pointer to the created simple table
  */

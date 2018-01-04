@@ -3,6 +3,13 @@
 
 
 
+/**
+ * Allocates a new table entry.
+ *
+ * @param key key of the entry
+ * @param value value of the entry
+ * @return a pointer to the newly allocated entry
+ */
 simple_table_entry *simple_table_entry_create(unsigned int key, unsigned int value) {
     simple_table_entry *entry;
 
@@ -18,8 +25,11 @@ simple_table_entry *simple_table_entry_create(unsigned int key, unsigned int val
     return entry;
 }
 
-
-
+/**
+ * Frees the specified entry and all of its sub-entries and sets the pointer to NULL.
+ *
+ * @param entry the double-pointer to the entry
+ */
 void simple_table_entry_free(simple_table_entry **entry) {
     if ((*entry)->next) {
         simple_table_entry_free(&((*entry)->next));
