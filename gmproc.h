@@ -14,6 +14,11 @@
 #define PROCESS_STATUS_INVALID_COLORS (1)
 
 /**
+ * Returned when more than 256 components were found
+ */
+#define PROCESS_STATUS_TOO_MANY_COMPONENTS (2)
+
+/**
  * Returned when input and output greymaps are not the same color.
  */
 #define PROCESS_STATUS_NONEQUAL_DIMENSIONS (2)
