@@ -28,7 +28,7 @@ void print_usage(char *exec_name) {
 char* get_filename(char *path) {
     char *result = path;
 
-    while(*path != NULL) {
+    while(*path != '\0') {
         if (*path == '\\' || *path == '/') {
             result = path + 1;
         }
