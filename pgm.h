@@ -1,8 +1,8 @@
 #ifndef PC_SP_PGM_H
 #define PC_SP_PGM_H
 
-#include "pgm/status.h"
-#include "pgm/stat_printer.h"
+#include "pgm_status.h"
+#include "pgm_stat_printer.h"
 
 typedef struct {
     unsigned int width;

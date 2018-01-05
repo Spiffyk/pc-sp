@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "status.h"
+#include "pgm_status.h"
 
 void greymap_stat_fprint(int status, FILE *target) {
     char* msg;
