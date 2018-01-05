@@ -1,3 +1,5 @@
 cmake-build-debug/**
 .idea/**
 CMakeLists.txt
+**/*.o
+pc_sp.exe

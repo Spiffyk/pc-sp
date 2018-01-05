@@ -1,4 +1,4 @@
-CFLAGS=-O2 -lm -pedantic
+CFLAGS=-O2 -pedantic
 
 default: pc_sp.exe
 
