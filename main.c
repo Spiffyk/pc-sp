@@ -38,8 +38,15 @@ char* get_filename(char *path) {
     return result;
 }
 
+/**
+ * Program entry point.
+ *
+ * @param argc the number of arguments (including the path to the program)
+ * @param argv the arguments (including the path to the program)
+ * @return program output
+ */
 int main(int argc, char *argv[]) {
-    int s;
+    int s, retval = EXIT_SUCCESS;
     char *input_filename, *output_filename;
     greymap *input_gm, *output_gm;
 
@@ -51,9 +58,7 @@ int main(int argc, char *argv[]) {
     input_filename = argv[1];
     output_filename = argv[2];
 
-    /*
-     * Read input from file
-     */
+    /* Read input from file */
     printf("-- Reading input greymap from '%s'... ", input_filename);
     input_gm = greymap_read(input_filename);
     if ((s = greymap_status()) != GREYMAP_STATUS_SUCCESS) {
@@ -63,48 +68,44 @@ int main(int argc, char *argv[]) {
     }
     printf("[ done. ]\n");
 
-    /*
-     * Allocate output
-     */
+    /* Allocate output */
     printf("-- Allocating output greymap... ");
     output_gm = greymap_create(input_gm->width, input_gm->height);
     if ((s = greymap_status()) != GREYMAP_STATUS_SUCCESS) {
         printf("[ ERROR! ]\n");
         greymap_stat_print(s);
+        greymap_free(&input_gm);
         return EXIT_CREATION_ERROR;
     }
     printf("[ done. ]\n");
 
-    /*
-     * Process input, fill output
-     */
+    /* Process input, fill output */
     printf("-- Processing greymap... ");
     if ((s = process_greymap(input_gm, output_gm)) != PROCESS_STATUS_SUCCESS) {
         printf("[ ERROR! ] (code: %d)\n", s);
+        greymap_free(&input_gm);
+        greymap_free(&output_gm);
         return EXIT_PROCESS_ERROR;
     }
     printf("[ done. ]\n");
 
-    /*
-     * Write output into file
-     */
+    /* Write output into file */
     printf("-- Writing output greymap... ");
     greymap_write(output_filename, output_gm);
     if ((s = greymap_status()) != GREYMAP_STATUS_SUCCESS) {
         printf("[ ERROR! ]\n");
         greymap_stat_print(s);
+        greymap_free(&input_gm);
+        greymap_free(&output_gm);
         return EXIT_WRITE_ERROR;
     }
     printf("[ done. ]\n");
 
-    /*
-     * Free
-     */
+    /* Free */
     printf("-- Freeing resources before exit... ");
     greymap_free(&input_gm);
     greymap_free(&output_gm);
     printf("[ done. ]\n");
 
-    printf("All done, program end.\n");
-    return EXIT_SUCCESS;
+    return retval;
 }

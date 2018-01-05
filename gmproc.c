@@ -138,7 +138,7 @@ int process_greymap(greymap *input, greymap *output) {
                             nb_color = neighbors[k];
                         }
 
-                        /* equivalence table data */
+                        /* equivalence table data insertion */
                         if (nb_color != neighbors[k]) {
                             while ((color_ptr = simple_table_get(equiv_table, nb_color))) {
                                 nb_color = *color_ptr;
@@ -162,7 +162,7 @@ int process_greymap(greymap *input, greymap *output) {
     }
 
     /*
-     * Pass 2: Equivalence table application
+     * Pass 2: Equivalence table application / recoloring of equivalent areas
      */
     for (j = 0; j < output->height; j++) {
         for (i = 0; i < output->width; i++) {

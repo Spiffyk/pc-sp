@@ -1,4 +1,4 @@
-OBJS=main.o gmproc.o pgm.o simple_table.o pgm_stat_printer.o
+OBJS=main.o gmproc.o pgm.o simple_table.o pgm_status_printer.o
 CFLAGS=-O2 -pedantic
 
 pc_sp.exe: $(OBJS)

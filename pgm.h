@@ -2,7 +2,7 @@
 #define PC_SP_PGM_H
 
 #include "pgm_status.h"
-#include "pgm_stat_printer.h"
+#include "pgm_status_printer.h"
 
 typedef struct {
     unsigned int width;
