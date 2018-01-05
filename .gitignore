@@ -1,5 +1,14 @@
+# IDEA and CMake project files
 cmake-build-debug/**
 .idea/**
 CMakeLists.txt
+
+# Compiled and linked files
 **/*.o
 pc_sp.exe
+
+# LaTeX-generated files
+**/*.pdf
+**/*.aux
+**/*.log
+**/*.toc
