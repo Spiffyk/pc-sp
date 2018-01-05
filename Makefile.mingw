@@ -1,9 +1,7 @@
 CC=gcc.exe
 
-default: pc_sp.exe
-
 include Makefile.global
 
 clean:
 	del *.o
-	del pc_sp.exe
+	del $(EXEFILE)

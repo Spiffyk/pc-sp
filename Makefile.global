@@ -1,7 +1,10 @@
 OBJS=main.o gmproc.o pgm.o simple_table.o pgm_status_printer.o
 CFLAGS=-O2 -pedantic
+EXEFILE=ccl.exe
 
-pc_sp.exe: $(OBJS)
+default: $(EXEFILE)
+
+$(EXEFILE): $(OBJS)
 	$(CC) $^ -o $@
 
 .c.o:
