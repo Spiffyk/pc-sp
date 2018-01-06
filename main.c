@@ -103,7 +103,7 @@ int add_extension(char **dest, char *arg, char *ext) {
  * @return program output
  */
 int main(int argc, char *argv[]) {
-    int s, retval = EXIT_SUCCESS, input_alloc, output_alloc;
+    int s, input_alloc, output_alloc;
     char *input_filename, *output_filename;
     greymap *input_gm, *output_gm;
 
@@ -175,5 +175,5 @@ int main(int argc, char *argv[]) {
     }
     printf("[ done. ]\n");
 
-    return retval;
+    return EXIT_SUCCESS;
 }
