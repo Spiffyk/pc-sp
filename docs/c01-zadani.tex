@@ -1,2 +1,19 @@
 \section{Zadání}
-Foo
+
+\textit{Tato sekce byla zkrácena. Plné znění zadání lze nalézt na webových stránkách předmětu KIV/PC.}
+
+\vspace{0.5cm}
+
+Naprogramujte v~ANSI C přenositelnou \textbf{konzolovou aplikaci}, která provede v~binárním digitálním obrázku
+(tj. obsahuje jen černé a bílé body) \textbf{obarvení souvislých oblastí} pomocí algoritmu \textit{Connected Component
+Labeling}\footnotemark[1] (dále \textit{CCL}) z~oblasti počítačového vidění.
+
+Úkolem vašeho programu tedy je vytvořit výsledný soubor s~obarveným obrázkem v~uvedeném
+umístění a s~uvedeným jménem. Vstupní i výstupní obrázek bude uložen v~souboru ve formátu
+PGM\footnotemark[1].
+
+Testujte, zda je vstupní obraz skutečně černobílý. Musí obsahovat pouze pixely s~hodnotou
+\verb|0x00| a \verb|0xFF|. Pokud tomu tak není, vypište krátké chybové hlášení (anglicky) a oznamte chybu
+operačnímu prostředí pomocí nenulového návratového kódu.
+
+\footnotetext[1]{Algoritmus a formát PGM jsou popsány v~dokumentu se zadáním, viz poznámku na začátku sekce.}

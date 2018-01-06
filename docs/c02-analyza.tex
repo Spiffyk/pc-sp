@@ -1,2 +1,27 @@
 \section{Analýza problému}
-Bar
+
+Základ zadání je v~zásadě triviální. Jedná se o~jednoduché procházení členů matice s~tím, že každý člen je porovnáván
+se svými sousedními členy. Matici lze vyjádřit jako pole hodnot o velikosti 1 bytu, neboť předpokládaná varianta formátu
+PGM pracuje s rozsahem hodnot odstínů šedi reprezentovaných čísly od 0 do 255.
+
+\subsection[Okraj matice]{Okraj matice -- problém se sousedními členy}
+První problém samozřejmě nastává v~případě, kdy se aktuální kontrolovaný člen nachází
+\uv{na okraji} dané matice, neboť některé sousední členy se pak pomyslně nacházejí mimo tuto matici; tento problém je
+však snadno eliminován tak, že jsou tito sousedé zcela ignorováni, nebo (což je řešení zvolené v~této práci) je jim
+připsána zástupná hodnota, která nemá vliv na výsledek algoritmu (v~našem případě jde o~hodnotu, která představuje barvu
+pozadí, tedy \verb|0x00|).
+
+\subsection{Tabulka ekvivalence}
+Druhým problémem je reprezentace tabulky ekvivalence\footnote{viz popis algoritmu CCL v zadání}.
+
+První možné řešení je jasné: lze ji vyjádřit polem, neboť v použité variantě formátu PGM je maximální počet barev 256,
+každou barvu lze tedy vyjádřit jedním bytem a v poměru k velikostem dnešních paměťových jednotek je 256 bytů
+zanedbatelným nárokem. Po prvním pokusu o implementaci je však problém s touto reprezentací tabulky okamžitě zřejmý:
+zadání sice předpokládá, že výsledný počet komponent (a tedy barev) v obrázku nepřesáhne číslo 256, ovšem během prvního
+průchodu může vzniknout barev mnohem více.
+
+Je tedy nutné sáhnout po komplexnějším řešení. První změnu je potřeba provést v reprezentaci matice, neboť 1 byte
+na člen již není dostačující. Ve výsledné implementaci je tedy barva pixelu vyjádřena 4 byty. Po této změně již však
+není praktické (a často ani možné) vyjádřit tabulku ekvivalence polem, neboť toto pole by mohlo mít až $ 2^{32} $ členů,
+z nichž každý je navíc 4 byty dlouhý. K reprezentaci tabulky ekvivalence tedy byla zvolena jednoduchá mapa. Popis její
+implementace lze nalézt v následující sekci.
