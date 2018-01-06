@@ -1,2 +1,151 @@
 \section{Popis implementace}
-Baz
+
+Nejprve by bylo vhodné podotknout, že celý zdrojový kód je vcelku hojně okomentovaný a každá funkce je popsána
+krátkým dokumentačním komentářem v~angličtině ve formátu velmi podobném JavaDocu známého z~vývojového prostředí
+jazyka Java. Některá integrovaná vývojová prostředí tyto komentáře berou v~potaz a umějí je kontextově zobrazovat
+v~dobře čitelné podobě. Ne všechny funkce jsou proto zmíněny či detailně popisovány v~této dokumentaci.
+
+Lze říci, že celý program je rozdělen do čtyř celků. Prvním celkem je vstupní bod programu tvořený souborem
+\verb|main.c|, který obsahuje funkci \verb|main()| a obstarává funkcionalitu ohledně spouštění jednotlivých procesů,
+které má program vykonávat.
+
+Druhým celkem je de-facto knihovna pro práci s~binární variantou souborů formátu PGM (\textit{Portable GrayMap}) tvořená
+soubory \verb|pgm.c|, \verb|pgm_status_printer.c| a s~nimi souvisejícími hlavičkovými soubory.
+
+Třetí celek obstarává zpracování obrázku pomocí algoritmu CCL a je tvořen soubory \verb|gmproc.c| a \verb|gmproc.h|.
+
+Čtvrtý a poslední celek je jednoduchou implementací mapy, která je v~předchozím celku použita jako reprezentace tabulky
+ekvivalence a rovněž je využita k~dodatečné úpravě obrázku po jeho zpracování (viz dále). Tento celek je tvořen soubory
+\verb|simple_table.c| a \verb|simple_table.h|.
+
+
+\subsection{Vstupní bod}
+
+Tato část tvořená jediným zdrojovým souborem \verb|main.c| obsahuje vstupní bod programu (funkci \verb|main()|), který
+obstarává spouštění dalších procesů.
+
+Nejprve je zkontrolováno, zda je program správně spouštěn pomocí příkazu
+\verb|ccl.exe <vstupni_soubor> <vystupni_soubor>|. Pokud tomu tak není, je tato skutečnost oznámena uživateli a program
+končí se stavovou hodnotou 1 (konstanta \verb|EXIT_MISSING_ARGS|).
+
+Dále program doplní do cest ke vstupnímu a výstupnímu souboru příponu \verb|.pgm|, pokud přípony zcela chybí. Toto je
+provedeno funkcí \verb|add_extension()|. V~případě, že přípony chybí, by ve velmi výjimečných případech mohlo dojít
+k~chybě s~alokací paměti, neboť je cesta k~souboru s~doplněnou příponou zapsána na novou, dynamicky přidělenou adresu.
+I~přes nízkou pravděpodobnost této události je tato chyba ošetřena a pokud k~ní dojde, skončí program se stavovou
+hodnotou 6 (konstanta \verb|EXIT_ALLOC_ERROR|).
+
+Po získání cest ke vstupnímu a výstupnímu souboru je pomocí níže popsané knihovny pro čtení PGM souborů přečten vstupní
+soubor a je uchován v~paměti k~dalšímu zpracování. Během čtení může dojít k~několika různým chybám, které knihovna hlasí
+pomocí svých stavových hodnot (k~nim více v~následující sekci). Pokud k~některé z~chyb dojde, program vypíše informaci
+o~stavové hodnotě knihovny v~uživatelsky čitelné podobě a ukončí se s~vlastní stavovou hodnotou 2 (konstanta
+\verb|EXIT_READ_ERROR|).
+
+Po načtení vstupního souboru je pomocí stejné knihovny naalokován a zinicializován výstupní obrázek. Při alokaci může
+opět dojít k~chybám, které knihovna opět hlásí pomocí svých stavových hodnot. Program opět v~případě chyby vypíše
+informaci o~této skutečnosti a ukončí se se stavovou hodnotou 3 (konstanta \verb|EXIT_CREATION_ERROR|).
+
+Nyní je vše připraveno a program volá funkci modulu ke zpracování vstupního obrázku pomocí CCL a zápisu do výstupního
+obrázku. Tato funkce má stavovou návratovou hodnotu, pomocí které je nahlášen výsledek procesu. Pokud se proces zdaří,
+je tato návratová hodnota nulová a program pokračuje v~činnosti. Pokud dojde při zpracování k~chybě, vypíše se této
+chyby a do konzole a program končí svou činnost se stavovou hodnotou 4 (konstanta \verb|EXIT_PROCESS_ERROR|).
+
+Po zdařilém pokusu o~zpracování obrázku již zbývá jen zápis výsledného obrázku na disk, který je opět proveden pomocí
+níže popisované knihovny a opět může hlásit chyby, které jsou případně vypsány a program v~jejich případě končí se
+stavovou hodnotou 5 (konstanta \verb|EXIT_WRITE_ERROR|).
+
+Nakonec se již jen uvolní paměť, která byla ve funkci \verb|main()| dynamicky alokována a program končí se stavovou
+hodnotou 0 značící úspěch (standardní konstanta \verb|EXIT_SUCCESS|).
+
+
+\subsection[Knihovna pro práci s~PGM]{Knihovna pro práci s~binárními soubory typu PGM}
+
+Tato knihovna obsahuje funkce a strukturu pro práci se soubory typu PGM. Struktura \verb|greymap| obsahuje informaci
+o~rozměrech obrázku a jednorozměrné pole 32-bitových neznaménkových celých čísel představujících barvy pixelů obrázku.
+Celá knihovna je rozdělena do pěti souborů, jejichž názvy začínají \verb|pgm|, k~jejímu použití se ovšem používá pouze
+hlavičkový soubor \verb|pgm.h|, který zajistí vše potřebné. Výkonný kód všech níže uvedených funkcí knihovny se až
+na výjimky, které budou uvedeny, nachází ve zdrojovém souboru \verb|pgm.c|.
+
+Pomocí funkce \verb|greymap_read()| lze soubory PGM číst. Funkce má navíc zavedenu funkcionalitu pro ignorování řádek
+uvozených znakem \verb|#|, které jsou ve formátu PGM definovány jako komentáře. Takové komentáře do souborů vkládá
+například program \textit{GNU Image Manipulation Program} (zkráceně \textit{GIMP}), který byl využit k~tvorbě vlastních
+testovacích obrázků při vývoji. Tato funkce nastavuje stavovou hodnotu knihovny dle svého výsledku, více níže.
+
+Funkce \verb|greymap_write()| zapíše obrázek vyjádřený strukturou \verb|greymap| na disk. Opět dle své úspěšnosti
+nastaví stavovou hodnotu.
+
+Knihovna dále obsahuje funkci pro alokaci nového obrázku \verb|greymap_create()|. Ta alokuje strukturu \verb|greymap|
+a její pole pixelů v~paměti a zinicializuje její informace o~rozměrech na zadané hodnoty. Pole pixelů
+není na počátku nijak inicializováno; je nutné jej inicializovat ručně. Tato funkce rovněž nastavuje stavovou hodnotu
+knihovny podle úspěšnosti.
+
+Další potřebnou funkcí je \verb|greymap_free()|, která se stará o~uvolnění části paměti, kde se nachází obrázek.
+Funkce sama nastavuje ukazatel na strukturu \verb|greymap| na hodnotu \verb|NULL|. Funkce \verb|greymap_free()| vždy
+nastavuje stavovou hodnotu knihovny na 0 značící úspěch.
+
+Další dvě funkce pro práci se strukturou \verb|greymap| jsou \verb|greymap_get_pixel()| a \verb|greymap_set_pixel()|.
+V~tomto pořadí slouží k~získávání a zápisu hodnot pixelů dle zadaných \textit{souřadnic}.
+
+Většina výše uvedených funkcí nastavuje stavovou hodnotu dle svého výsledku. Tato stavová hodnota je ukládána v~proměnné
+\verb|status_code|, která je viditelná pouze uvnitř knihovny. Pro získání stavové hodnoty vně knihovny slouží funkce
+\verb|greymap_status()|, která tuto hodnotu vrací. Veškeré konstanty stavových hodnot včetně jejich krátkých anglických
+popisků se nacházejí v~souboru \verb|pgm_status.h|.
+
+Poslední funkcí knihovny je \verb|greymap_status_fprint()|, ke které je také přidruženo makro
+\verb|greymap_status_print()|. Funkce vypíše popis stavu v~uživatelsky čitelné podobě do zadaného proudu. Makro pak volá
+tuto funkci tak, aby popis vypsala do standardního výstupu (tedy konzole). Výkonný kód funkce se nachází ve zdrojovém
+souboru \verb|pgm_status_printer.c|.
+
+
+\subsection[Zpracování obrázku pomocí CCL]{Zpracování obrázku pomocí algoritmu CCL}
+
+Veškerá funkcionalita související s~algoritmem CCL je implementována ve zdrojovém souboru nazvaném \verb|gmproc.c|,
+v~němž se nachází jediná z~vnějšku viditelná funkce \verb|process_greymap()|.
+
+Tato funkce nejprve zkontroluje, že rozměry vstupního i výstupního obrázku programu jsou totožné a pokud nejsou,
+skončí chybou.
+
+Dále je výstupní obrázek inicializován tak, aby všechny jeho pixely měly hodnotu \verb|0x00| a rovněž je alokována mapa
+(pro implementaci mapy viz sekci níže), která slouží jako tabulka ekvivalence.
+
+Po těchto krocích následuje první průchod algoritmu CCL. Během tohoto průchodu jsou pro každý pixel získávány
+do osmičlenného pole \verb|neighbors| získávány hodnoty sousedních pixelů pomocí funkce \verb|get_neighbors()|.
+Implementace funkce \verb|greymap_get_pixel()| (viz výše) zajišťuje, že sousední pixely, jejichž souřadnice se nacházejí
+mimo obrázek, jsou zastoupeny hodnotou \verb|0x00| a tudíž mají v~algoritmu význam pozadí, nikoliv bílé plochy.
+
+Pro každý pixel, mezi jehož sousedními pixely se nachází alespoň dva takové, které mají vzájemně odlišnou barvu a nemají
+barvu pozadí, je vytvořen záznam v~tabulce ekvivalence, kde je barva sousedního pixelu použita jako klíč. Pokud již klíč
+v~tabulce existuje, zjišťuje se, zda nelze jeho odpovídající hodnotu v~tabulce již zapsanou použít jako další klíč (tedy
+zda se další hodnota nerovná klíči).
+
+Zbytek prvního průběhu probíhá přesně, jak je popsáno v~zadání, přičemž veškeré změny jsou zapisovány do výstupního
+obrázku.
+
+Během druhého průchodu probíhá aplikace tabulky ekvivalence, tedy všechny barvy, které jsou vzájemně ekvivalentní,
+jsou převáděny na jednu společnou barvu, určenou tabulkou ekvivalence.
+
+Dále je použita funkce \verb|fit_colors_to_char()|, neboť se může stát, že hodnoty pixelů přesahují maximální hodnotu,
+kterou je možné vyjádřit jedním bytem. Tato funkce pomocí další vlastní mapy zajistí, že jsou všechny barvy obsažené
+v~obrázku v~rozsahu 0 až 255.
+
+Posledním krokem je použití funkce \verb|make_colors_distinguishable()|, která upraví obrázek tak, aby rozdíl mezi
+jednotlivými barvami byl větší než 1 (kvůli rozpoznání správného výsledku lidským okem), pokud je to možné.
+
+
+\subsection{Implementace mapy}
+
+Program obsahuje jednoduchou implementaci mapy, jejíž výkonný kód se nachází v~souboru \verb|simple_table.c|.
+V~hlavičkovém souboru jsou definovány struktury, z~nichž jedna představuje mapu a druhá záznam.
+
+Mapa je realizována pomocí pole s~nastavitelnou délkou. Každý člen pole je záznam, obsahuje ukazatel
+na případný další záznam, čímž vzniká datová struktura spojového seznamu. Pole je jakousi hashovací tabulkou. Hash kód
+záznamu je určen tak, že je spočítán zbytek po celočíselném dělení jeho \textit{klíče} nastavenou \textit{délkou pole}.
+
+Mapu lze alokovat funkcí \verb|simple_table_create()|, které lze jako argument předat velikost hashovací tabulky, nebo
+makrem \verb|simple_table_default()|, které nastaví její velikost na 255. Velikost tabulky může být jakákoliv a má
+především vliv na výkon a paměťové nároky mapy.
+
+Hodnoty do mapy lze přidávat funkcí \verb|simple_table_put()| a číst funkcí \verb|simple_table_get()|. Funkce
+pro odebírání záznamů nebyla implementována, neboť je pro účely této semestrální práce nepotřebná.
+
+Paměť použitá mapou se uvolňuje pomocí funkce \verb|simple_table_free()|, která rekurzivně uvolní i paměť užívanou
+veškerými záznamy v~ní obsaženými.
