@@ -1,5 +1,5 @@
 OBJS=main.o gmproc.o pgm.o simple_table.o pgm_status_printer.o
-CFLAGS=-O2 -pedantic
+CFLAGS=-O2 -pedantic -ansi
 EXEFILE=ccl.exe
 
 default: $(EXEFILE)

@@ -5,7 +5,7 @@ CMakeLists.txt
 
 # Compiled and linked files
 **/*.o
-pc_sp.exe
+ccl.exe
 
 # LaTeX-generated files
 **/*.pdf
