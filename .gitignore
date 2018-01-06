@@ -12,3 +12,11 @@ ccl.exe
 **/*.aux
 **/*.log
 **/*.toc
+**/*.te~
+
+# The University of West Bohemia logo
+# It is probably not even legal to include it in the repository
+docs/znak_zcu.pdf
+docs/znak_zcu.pdf_tex
+docs/znak_zcu.svg
+docs/znak_zcu.zip
