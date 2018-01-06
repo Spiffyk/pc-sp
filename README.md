@@ -38,13 +38,13 @@ mingw32-make -f Makefile.mingw
 This program can be run on **Linux** with the following command:
 
 ```
-./pc_sp.exe <input_pgm> <output_pgm>
+./ccl.exe <input_pgm> <output_pgm>
 ```
 
 and on **Windows** with the following command:
 
 ```
-pc_sp.exe <input_pgm> <output_pgm>
+ccl.exe <input_pgm> <output_pgm>
 ```
 
 `input_pgm` is a black and white PGM file to be processed, `output_pgm` is the path to the processed PGM file to be
