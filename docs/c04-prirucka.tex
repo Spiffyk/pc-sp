@@ -1,2 +1,63 @@
 \section{Uživatelská příručka}
-Rakeťák
+
+\subsection{Sestavení programu}
+
+Program lze sestavit na operačních systémech \textit{Linux}, \textit{Microsoft Windows} a pravděpodobně
+i \textit{Apple OS X}; na OS X však nebyl program testován.
+
+Přeložení programu je automatizováno pomocí nástroje \textbf{make}, který je konfigurován souborem
+\verb|Makefile.global|, kde se nachází společná konfigurace pro všechny operační systémy a dále \verb|Makefile| pro
+Unixové systémy (Linux a Apple OS X) a \verb|Makefile.mingw| pro Windows s~nainstalovaným prostředím \textbf{MinGW}.
+
+\subsubsection{Linux}
+
+V~systému je třeba mít nainstalován kompilátor \textbf{gcc} a program \textbf{make}. Semestrální práce nezávisí
+na dalších externích knihovnách a mělo by být možné ji přeložit zadáním následujícího příkazu do terminálu s~aktuálním
+adresářem v~kořeni projektu:
+
+\begin{verbatim}
+    make clean && make
+\end{verbatim}
+
+
+\subsubsection{Windows}
+
+V~systému je třeba mít nainstalováno prostředí \textbf{MinGW} a v~něm balíky poskytující \textbf{gcc} a \textbf{make}.
+Dále je potřeba, aby byla v~systémové proměnné \verb|PATH| nastavena cesta \verb|C:\MinGW\bin|.
+Semestrální práce nezávisí na dalších externích knihovnách a mělo by být možné ji přeložit zadáním následujících
+příkazů do příkazové řádky s~aktuálním adresářem v~kořeni projektu:
+
+\begin{verbatim}
+    mingw32-make -f Makefile.mingw clean
+    mingw32-make -f Makefile.mingw
+\end{verbatim}
+
+
+\subsection{Spuštění programu}
+
+Po úspěšném sestavení programu by na všech operačních systémech měl vzniknout soubor \verb|ccl.exe|, vždy ve formátu
+spustitelném daným systémem.
+
+Program lze spustit z~příkazové řádky a po předání argumentů \verb|<vstupni_soubor>| a \verb|<vystupni_soubor>| by měl
+provést svou činnost a správně se ukončit, pokud vstupní soubor existuje a na zápis do výstupního souboru má program
+správná oprávnění (případně není zaplněno úložiště).
+
+Při zadávání argumentů není nutné, aby názvy souborů obsahovaly příponu; program si ji v~případě potřeby doplní sám.
+
+
+\subsubsection{Linux}
+
+Program se spouští příkazem:
+
+\begin{verbatim}
+    ./ccl.exe <vstupni_soubor> <vystupni_soubor>
+\end{verbatim}
+
+
+\subsubsection{Windows}
+
+Program se spouští příkazem:
+
+\begin{verbatim}
+    ccl.exe <vstupni_soubor> <vystupni_soubor>
+\end{verbatim}
