@@ -18,10 +18,10 @@ První možné řešení je jasné: lze ji vyjádřit polem, neboť v~použité 
 každou barvu lze tedy vyjádřit jedním bytem a v~poměru k~velikostem dnešních paměťových jednotek je 256 bytů
 zanedbatelným nárokem. Po prvním pokusu o~implementaci je však problém s~touto reprezentací tabulky okamžitě zřejmý:
 zadání sice předpokládá, že výsledný počet komponent (a tedy barev) v~obrázku nepřesáhne číslo 256, ovšem během prvního
-průchodu může vzniknout barev mnohem více.
+průchodu algoritmu CCL může barev vzniknout mnohem více.
 
-Je tedy nutné sáhnout po komplexnějším řešení. První změnu je potřeba provést v~reprezentaci matice, neboť 1 byte
+Je tedy nutné sáhnout po komplexnějším řešení. První změnu je třeba provést v~reprezentaci matice, neboť 1 byte
 na člen již není dostačující. Ve výsledné implementaci je tedy barva pixelu vyjádřena 4 byty. Po této změně již však
-není praktické (a často ani možné) vyjádřit tabulku ekvivalence polem, neboť toto pole by mohlo mít až $ 2^{32} $ členů,
-z~nichž každý je navíc 4 byty dlouhý. K~reprezentaci tabulky ekvivalence tedy byla zvolena jednoduchá mapa. Popis její
-implementace lze nalézt v~následující sekci.
+není praktické (a často ani možné) vyjádřit tabulku ekvivalence polem, neboť toto pole by kvůli úplnosti mělo mít až
+$ 2^{32} $ členů, z~nichž každý je navíc 4 byty dlouhý. K~reprezentaci tabulky ekvivalence tedy byla zvolena jednoduchá
+mapa. Popis její implementace lze nalézt v~následující sekci.

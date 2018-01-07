@@ -1,22 +1,21 @@
 \section{Popis implementace}
 
-Nejprve by bylo vhodné podotknout, že celý zdrojový kód je vcelku hojně okomentovaný a každá funkce je popsána
-krátkým dokumentačním komentářem v~angličtině ve formátu velmi podobném JavaDocu známého z~vývojového prostředí
+Na počátku této sekce by bylo vhodné podotknout, že celý zdrojový kód je vcelku hojně okomentovaný a každá funkce je
+popsána krátkým dokumentačním komentářem v~angličtině ve formátu velmi podobném JavaDocu známého z~vývojového prostředí
 jazyka Java. Některá integrovaná vývojová prostředí tyto komentáře berou v~potaz a umějí je kontextově zobrazovat
-v~dobře čitelné podobě. Ne všechny funkce jsou proto zmíněny či detailně popisovány v~této dokumentaci.
+v~dobře čitelné podobě. Ne všechny funkce jsou proto v~této dokumentaci zmíněny či detailně popisovány.
 
-Lze říci, že celý program je rozdělen do čtyř celků. Prvním celkem je vstupní bod programu tvořený souborem
-\verb|main.c|, který obsahuje funkci \verb|main()| a obstarává funkcionalitu ohledně spouštění jednotlivých procesů,
-které má program vykonávat.
+\vspace{0.5cm}
 
-Druhým celkem je de-facto knihovna pro práci s~binární variantou souborů formátu PGM (\textit{Portable GrayMap}) tvořená
-soubory \verb|pgm.c|, \verb|pgm_status_printer.c| a s~nimi souvisejícími hlavičkovými soubory.
+Lze říci, že celý program je rozdělen do čtyř celků. Prvním celkem je vstupní bod programu, který obsahuje funkci
+\verb|main()| a obstarává funkcionalitu ohledně spouštění jednotlivých procesů, které má program vykonávat.
 
-Třetí celek obstarává zpracování obrázku pomocí algoritmu CCL a je tvořen soubory \verb|gmproc.c| a \verb|gmproc.h|.
+Druhým celkem je de-facto knihovna pro práci s~binární variantou souborů formátu PGM (\textit{Portable GrayMap}).
+
+Třetí celek obstarává zpracování obrázku pomocí algoritmu CCL.
 
 Čtvrtý a poslední celek je jednoduchou implementací mapy, která je v~předchozím celku použita jako reprezentace tabulky
-ekvivalence a rovněž je využita k~dodatečné úpravě obrázku po jeho zpracování (viz dále). Tento celek je tvořen soubory
-\verb|simple_table.c| a \verb|simple_table.h|.
+ekvivalence a je rovněž využita k~dodatečné úpravě obrázku po jeho zpracování (viz dále).
 
 
 \subsection{Vstupní bod}
